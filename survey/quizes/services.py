@@ -1,8 +1,7 @@
 from typing import Optional
 
 from users.models import User
-from quizes.models import QuizSession, Quiz
-from quizes.services import QuizQuestionService, QuestionAnswerService
+from quizes.models import QuizSession, Quiz, QuizQuestion, QuestionAnswer
 
 class QuizSessionService:
     def __init__(self):
