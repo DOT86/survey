@@ -12,5 +12,6 @@ router.register(
 
 
 urlpatterns = [
+    path('current-question/', views.CurrentQuestionView.as_view(), name='current-question'),
     path('', include(router.urls)),
 ]
