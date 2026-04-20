@@ -3,6 +3,7 @@ from quizes.models import Quiz
 from quizes.serializers import QuizSerializer, QuizQuestionSerializer
 from quizes.services import QuizSessionService, QuizQuestionService
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class QuizViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,27 @@ class QuizViewSet(viewsets.ModelViewSet):
 
 class CurrentQuestionView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Текущий вопрос опроса",
+        description="Возвращает следующий вопрос для активной сессии пользователя",
+        parameters=[
+            OpenApiParameter(
+                name="quiz_id",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description="ID опроса",
+                required=True,
+            ),
+        ],
+        responses={
+            200: QuizQuestionSerializer,
+            400: {"description": "Quiz ID not provided"},
+            401: {"description": "Unauthorized"},
+            404: {"description": "Quiz not found / Session not found / No more questions"},
+        },
+        tags=["Quiz"],
+    )
 
     def get(self, request):
         user = request.user
