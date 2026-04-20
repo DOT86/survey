@@ -1,4 +1,4 @@
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, viewsets
 from quizes.models import Quiz
 from quizes.serializers import QuizSerializer
 
