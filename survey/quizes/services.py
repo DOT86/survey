@@ -8,10 +8,10 @@ class QuizSessionService:
         self.quiz_question_service = QuizQuestionService()
         self.question_answer_service = QuestionAnswerService()
 
-    def get_by_user(self, user: User) -> Optional[QuizSession] | None:
+    def get_by_user(self, user: User) -> Optional[QuizSession]:
         return QuizSession.objects.filter(user=user).first()
 
-    def get_by_user_and_quiz(self, user: User, quiz: Quiz) -> Optional[QuizSession] | None:
+    def get_by_user_and_quiz(self, user: User, quiz: Quiz) -> Optional[QuizSession]:
         return QuizSession.objects.filter(user=user, quiz=quiz).first()
 
     def get_current_question(self,user: User, quiz: Quiz) -> int | None:
@@ -37,13 +37,13 @@ class QuizQuestionService:
     def __init__(self):
         self.model = QuizQuestion
 
-    def get_by_id(self, id: int) -> Optional[QuizQuestion] | None:
+    def get_by_id(self, id: int) -> Optional[QuizQuestion]:
         return self.model.objects.filter(id=id).first()
 
-    def get_ids_by_quiz(self, quiz: Quiz) -> Optional[list[int]] | None:
+    def get_ids_by_quiz(self, quiz: Quiz) -> Optional[list[int]]:
         return self.model.objects.filter(quiz=quiz).order_by('order').values_list('id', flat=True)
 
-    def get_next_question(self, answered_questions: list[int]) -> Optional[QuizQuestion] | None:
+    def get_next_question(self, answered_questions: list[int]) -> Optional[QuizQuestion]:
         return self.model.objects.exclude(
             id__in=answered_questions
         ).order_by('order').first()
@@ -53,7 +53,7 @@ class QuestionAnswerService:
     def __init__(self):
         self.model = QuestionAnswer
 
-    def get_by_question_id_and_session(self, question_id: int, session: QuizSession) -> Optional[QuestionAnswer] | None:
+    def get_by_question_id_and_session(self, question_id: int, session: QuizSession) -> Optional[QuestionAnswer]:
         return self.model.objects.filter(question_id=question_id, session=session).first()
 
 

@@ -1,7 +1,7 @@
 from rest_framework import permissions, viewsets, views, status
-from quizes.models import Quiz
-from quizes.serializers import QuizSerializer
-from quizes.services import QuizSessionService
+from quizes.models import Quiz, QuizSession, QuizQuestion, QuestionAnswer
+from quizes.serializers import QuizSerializer, QuizQuestionSerializer
+from quizes.services import QuizSessionService, QuizQuestionService
 from rest_framework.response import Response
 
 
@@ -16,6 +16,8 @@ class CurrentQuestionView(views.APIView):
 
     def get(self, request):
         user = request.user
+        if not request.user.is_authenticated:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         quiz_id = request.query_params.get('quiz_id')
         quiz_session_service = QuizSessionService()
         quiz_question_service = QuizQuestionService()
@@ -26,7 +28,7 @@ class CurrentQuestionView(views.APIView):
         if not quiz:
             return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        quiz_session = QuizSessionService().get_(user=user, quiz=quiz)
+        quiz_session = quiz_session_service.get_by_user_and_quiz(user=user, quiz=quiz)
         if not quiz_session:
             return Response({'Error': 'Quiz session not found'}, status=status.HTTP_404_NOT_FOUND)
         question_id = quiz_session_service.get_current_question(user=user, quiz=quiz)
