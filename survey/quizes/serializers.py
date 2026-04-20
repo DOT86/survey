@@ -8,19 +8,6 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ['id', 'text']
 
 
-class QuizQuestionSerializer(serializers.ModelSerializer):
-    quiz_id = serializers.PrimaryKeyRelatedField(
-        queryset=Quiz.objects.all(),
-        source='quiz',
-        write_only=True,
-        required=False
-    )
-
-    class Meta:
-        model = QuizQuestion
-        fields = ['id', 'question', 'order',]
-
-
 class QuestionAnswerSerializer(serializers.ModelSerializer):
     answer = AnswerSerializer(read_only=True)
     answer_id = serializers.PrimaryKeyRelatedField(
@@ -33,8 +20,18 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionAnswer
         fields = ['id', 'order', 'answer', 'answer_id', 'is_right']
+        read_only_fields = ['answer']
+
+
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    answers = QuestionAnswerSerializer(many=True, read_only=True)
+    class Meta:
+        model = QuizQuestion
+        fields = ['id', 'question', 'order', 'answers', ]
+
 
 class QuizSerializer(serializers.ModelSerializer):
+    questions = QuizQuestionSerializer(many=True, read_only=True)
     class Meta:
         model = Quiz
-        fields = '__all__'
+        fields = ['id', 'name', 'order', 'description', 'status', 'questions', ]
