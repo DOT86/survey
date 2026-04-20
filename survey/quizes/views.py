@@ -1,5 +1,5 @@
 from rest_framework import permissions, viewsets, views, status
-from quizes.models import Quiz, QuizSession, QuizQuestion, QuestionAnswer
+from quizes.models import Quiz
 from quizes.serializers import QuizSerializer, QuizQuestionSerializer
 from quizes.services import QuizSessionService, QuizQuestionService
 from rest_framework.response import Response
@@ -30,7 +30,7 @@ class CurrentQuestionView(views.APIView):
 
         quiz_session = quiz_session_service.get_by_user_and_quiz(user=user, quiz=quiz)
         if not quiz_session:
-            return Response({'Error': 'Quiz session not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Quiz session not found'}, status=status.HTTP_404_NOT_FOUND)
         question_id = quiz_session_service.get_current_question(user=user, quiz=quiz)
         if not question_id:
             return Response({'Error': 'No more questions'}, status=status.HTTP_404_NOT_FOUND)
