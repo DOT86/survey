@@ -1,7 +1,8 @@
 from typing import Optional
 
 from users.models import User
-from quizes.models import QuizSession
+from quizes.models import QuizSession, Quiz
+from quizes.services import QuizQuestionService, QuestionAnswerService
 
 class QuizSessionService:
     def __init__(self):
@@ -12,7 +13,7 @@ class QuizSessionService:
         return QuizSession.objects.filter(user=user).first()
 
     def get_by_user_and_quiz(self, user: User, quiz: Quiz) -> Optional[QuizSession]:
-        return QuizSession.objects.filter(user=user, quiz=quiz).first()
+        return QuizSession.objects.select_related('quiz').filter(user=user, quiz=quiz).first()
 
     def get_current_question(self,user: User, quiz: Quiz) -> int | None:
         quiz_session = self.get_by_user_and_quiz(user=user, quiz=quiz)
