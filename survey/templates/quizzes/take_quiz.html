@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Прохождение опроса{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Прогресс бар -->
+    <div class="mb-8">
+        <div class="flex justify-between mb-2">
+            <span class="text-sm font-medium text-gray-700">Прогресс</span>
+            <span class="text-sm font-medium text-gray-700" id="progress-text">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" id="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Карточка вопроса -->
+    <div class="bg-white rounded-lg shadow-lg p-8" id="question-container">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800" id="question-text">Загрузка...</h2>
+            <p class="text-sm text-gray-500 mt-2" id="question-number"></p>
+        </div>
+
+        <div class="space-y-3" id="answers-container">
+            <!-- Ответы будут загружены сюда -->
+        </div>
+
+        <div class="mt-8 flex justify-between">
+            <button onclick="previousQuestion()"
+                    class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition hidden"
+                    id="prev-btn">
+                Назад
+            </button>
+            <button onclick="nextQuestion()"
+                    class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                    id="next-btn">
+                Далее
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для пользовательского ответа -->
+    <div id="custom-answer-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4">Ваш ответ</h3>
+            <textarea id="custom-answer-text" rows="4" class="w-full border rounded p-2 mb-4"
+                      placeholder="Напишите ваш ответ..."></textarea>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeCustomModal()" class="px-4 py-2 bg-gray-300 rounded">Отмена</button>
+                <button onclick="submitCustomAnswer()" class="px-4 py-2 bg-blue-600 text-white rounded">Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+    <script src="{% static 'js/take-quiz.js' %}"></script>
+{% endblock %}

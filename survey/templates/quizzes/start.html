@@ -1,0 +1,66 @@
+<!-- templates/quizzes/start.html -->
+{% extends 'base.html' %}
+
+{% block title %}Начать опрос{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Заголовок -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
+            <h1 class="text-2xl font-bold text-white">Начать опрос</h1>
+        </div>
+
+        <!-- Тело -->
+        <div class="p-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ quiz.name }}</h2>
+                {% if quiz.description %}
+                    <p class="text-gray-600">{{ quiz.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Информация об опросе -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="space-y-2">
+                    <p class="text-gray-700">
+                        <span class="font-medium">Количество вопросов:</span>
+                        {{ quiz.quizquestion_set.count }}
+                    </p>
+                    <p class="text-gray-700">
+                        <span class="font-medium">Статус:</span>
+                        <span class="{% if quiz.status == 'active' %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if quiz.status == 'active' %}Активен{% else %}Неактивен{% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Предупреждение -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <p class="text-sm text-yellow-700">
+                    <strong>Внимание!</strong> После начала опроса вы не сможете прерваться.
+                    Отвечайте на вопросы последовательно.
+                </p>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="flex justify-between items-center">
+                <a href="/quiz/" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition">
+                    ← Назад
+                </a>
+
+                <button onclick="startQuiz()"
+                        id="start-btn"
+                        class="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700 transition">
+                    Начать опрос →
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{% static 'js/start-quiz.js' %}"></script>
+{% endblock %}

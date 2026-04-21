@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Система опросов{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/basic.css' %}">
+
+</head>
+<body class="bg-gray-100">
+    <!-- Навигация -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-gray-800">Система опросов</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/quiz/" class="text-gray-600 hover:text-gray-900">Опросы</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Loading индикатор -->
+    <div class="overlay" id="overlay"></div>
+    <div class="loading" id="loading">
+        <div class="bg-white rounded-lg p-4 shadow-xl">
+            <div class="flex items-center space-x-3">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span>Загрузка...</span>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}
+        <script src="{% static 'js/base.js' %}"></script>
+    {% endblock %}
+</body>
+</html>

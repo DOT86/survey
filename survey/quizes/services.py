@@ -1,7 +1,15 @@
 from typing import Optional
-
+from django.utils import timezone
 from users.models import User
-from quizes.models import QuizSession, Quiz, QuizQuestion, QuestionAnswer
+from quizes.models import QuizSession, Quiz, QuizQuestion, QuestionAnswer, UserAnswer
+
+
+class QuizService:
+    def __init__(self):
+        self.model = Quiz
+
+    def get_by_id(self, id: int) -> Quiz | None:
+        return self.model.objects.filter(id=id).first()
 
 
 class QuestionAnswerService:
@@ -16,6 +24,13 @@ class QuizSessionService:
     def __init__(self):
         self.quiz_question_service = QuizQuestionService()
         self.question_answer_service = QuestionAnswerService()
+        self.quiz_service = QuizService()
+
+    def get_or_create_session(self, user: User, quiz: Quiz) -> QuizSession:
+        quiz_session = self.get_by_user_and_quiz(user=user, quiz=quiz)
+        if not quiz_session:
+            quiz_session = QuizSession.objects.create(user=user, quiz=quiz)
+        return quiz_session
 
     def get_by_user(self, user: User) -> Optional[QuizSession]:
         return QuizSession.objects.filter(user=user).first()
@@ -43,6 +58,26 @@ class QuizSessionService:
 
         return None  # Все вопросы отвечены
 
+    def get_completed_last_session(self, quiz_id: int, user: User) -> Optional[QuizQuestion]:
+        quiz =  self.quiz_service.get_by_id(id=quiz_id)
+        if not quiz:
+            return None
+
+        quiz_session = QuizSession.objects.filter(
+            quiz=quiz,
+            user=user,
+            status=QuizSession.STATUS_COMPLETED,
+        ).last()
+        if not quiz_session:
+            return None
+        return quiz_session
+
+    def set_completed(self, quiz_session: QuizSession)-> QuizSession:
+        quiz_session.status = QuizSession.STATUS_COMPLETED
+        quiz_session.ended_at = timezone.now()
+        quiz_session.save()
+        return quiz_session
+
 
 class QuizQuestionService:
     def __init__(self):
@@ -58,3 +93,11 @@ class QuizQuestionService:
         return self.model.objects.exclude(
             id__in=answered_questions
         ).order_by('order').first()
+
+
+class UserAnswerService:
+    def __init__(self):
+        self.model = UserAnswer
+
+    def create(self, **kwargs) -> UserAnswer:
+        return self.model.objects.create(**kwargs)

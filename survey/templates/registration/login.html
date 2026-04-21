@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/registration.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <!-- Заголовок -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-8 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Добро пожаловать!</h1>
+                <p class="text-blue-100 mt-2">Войдите в свой аккаунт</p>
+            </div>
+
+            <!-- Форма входа -->
+            <div class="p-6">
+                {% if form.errors %}
+                <div class="error-message">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Неверное имя пользователя или пароль.</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if next %}
+                    {% if user.is_authenticated %}
+                    <div class="error-message">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span>У вас нет доступа к этой странице. Пожалуйста, войдите с другой учетной записью.</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}" id="login-form">
+                    {% csrf_token %}
+
+                    <div class="input-group">
+                        <input type="text"
+                               name="username"
+                               id="username"
+                               placeholder=" "
+                               required
+                               autofocus>
+                        <label for="username">Email или имя пользователя</label>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password"
+                               name="password"
+                               id="password"
+                               placeholder=" "
+                               required>
+                        <label for="password">Пароль</label>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="remember" class="mr-2">
+                            <span class="text-sm text-gray-600">Запомнить меня</span>
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next|default:'/quiz/' }}">
+
+                    <button type="submit" class="btn-login" id="submit-btn">
+                        Войти в систему
+                    </button>
+                </form>
+
+                <!-- Разделитель -->
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">или</span>
+                    </div>
+                </div>
+
+                <!-- Ссылка на регистрацию -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Нет аккаунта?
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Демо-аккаунт (для тестирования) -->
+        <div class="mt-4 text-center text-sm text-gray-500">
+            <p>Демо-аккаунт: demo / demo123</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Автоматическое сохранение состояния "Запомнить меня"
+    const rememberCheckbox = document.querySelector('input[name="remember"]');
+    const usernameInput = document.getElementById('username');
+
+    // Загрузка сохраненного username
+    if (localStorage.getItem('saved_username')) {
+        usernameInput.value = localStorage.getItem('saved_username');
+        rememberCheckbox.checked = true;
+    }
+
+    // Обработка формы
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="flex items-center justify-center"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>Вход...</div>';
+
+        if (rememberCheckbox.checked) {
+            localStorage.setItem('saved_username', usernameInput.value);
+        } else {
+            localStorage.removeItem('saved_username');
+        }
+    });
+
+    // Добавление иконок в поля ввода (опционально)
+    function addInputIcons() {
+        const usernameGroup = document.querySelector('.input-group:first-child');
+        const passwordGroup = document.querySelector('.input-group:last-child');
+
+        if (usernameGroup && !usernameGroup.querySelector('.input-icon')) {
+            const userIcon = document.createElement('div');
+            userIcon.className = 'input-icon';
+            userIcon.style.position = 'absolute';
+            userIcon.style.right = '12px';
+            userIcon.style.top = '50%';
+            userIcon.style.transform = 'translateY(-50%)';
+            userIcon.innerHTML = `
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            `;
+            usernameGroup.appendChild(userIcon);
+        }
+
+        if (passwordGroup && !passwordGroup.querySelector('.input-icon')) {
+            const passIcon = document.createElement('div');
+            passIcon.className = 'input-icon';
+            passIcon.style.position = 'absolute';
+            passIcon.style.right = '12px';
+            passIcon.style.top = '50%';
+            passIcon.style.transform = 'translateY(-50%)';
+            passIcon.innerHTML = `
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            `;
+            passwordGroup.appendChild(passIcon);
+        }
+    }
+
+    // Добавляем иконки после загрузки страницы
+    document.addEventListener('DOMContentLoaded', addInputIcons);
+</script>
+{% endblock %}
