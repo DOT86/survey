@@ -1,11 +1,14 @@
 from django.views.generic import ListView, TemplateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render, get_object_or_404
 from rest_framework import permissions, viewsets, views, status
-from quizes.models import Quiz
+from quizes.models import Quiz, QuizSession
 from quizes.serializers import QuizSerializer, QuizQuestionSerializer, SubmitAnswerSerializer
 from quizes.services import QuizSessionService, QuizQuestionService, QuizService, UserAnswerService
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from users.models import User
+from rest_framework.renderers import JSONRenderer
+
 
 
 class QuizViewSet(viewsets.ModelViewSet):
@@ -15,6 +18,7 @@ class QuizViewSet(viewsets.ModelViewSet):
 
 
 class CurrentQuestionView(views.APIView):
+    renderer_classes = [JSONRenderer]
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
@@ -39,9 +43,19 @@ class CurrentQuestionView(views.APIView):
     )
 
     def get(self, request):
-        user = request.user
+        # user = User.objects.all().first()
+        # print(user)
+        # if not request.user.is_authenticated:
+        #     return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         if not request.user.is_authenticated:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            if not request.session.session_key:
+                request.session.create()
+            user, created = User.objects.get_or_create(
+                email=f'{request.session.session_key}@anonymous.local',
+            )
+        else:
+            user = request.user
+
         quiz_id = request.query_params.get('quiz_id')
         quiz_session_service = QuizSessionService()
         quiz_question_service = QuizQuestionService()
@@ -156,6 +170,7 @@ class SubmitAnswerView(views.APIView):
 
 
 class StartQuizSessionView(views.APIView):
+    renderer_classes = [JSONRenderer]
     permission_classes = [permissions.AllowAny]
 
 
@@ -170,9 +185,18 @@ class StartQuizSessionView(views.APIView):
         if not quiz:
             return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        if not request.user.is_authenticated:
+            if not request.session.session_key:
+                request.session.create()
+            user, created = User.objects.get_or_create(
+                email=f'{request.session.session_key}@anonymous.local',
+            )
+        else:
+            user = request.user
+
         session_service = QuizSessionService()
         session = session_service.get_or_create_session(
-            user=request.user,
+            user=user,
             quiz=quiz
         )
 
@@ -194,8 +218,25 @@ class QuizStartView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         quiz_id = self.kwargs['quiz_id']
-        return redirect(f'/quiz/take/{quiz_id}/')
+        quiz = get_object_or_404(Quiz, id=quiz_id)
 
+        if not request.user.is_authenticated:
+            if not request.session.session_key:
+                request.session.create()
+            user, created = User.objects.get_or_create(
+                email=f'{request.session.session_key}@anonymous.local',
+            )
+        else:
+            user = request.user
+        quiz_session_service = QuizSessionService()
+        quiz_session = quiz_session_service.get_by_user_and_quiz(
+            user=user,
+            quiz=quiz
+        )
+        if not quiz_session:
+            return render(request, '400.html', {'error': 'Quiz session not found'})
+
+        return render(request, 'quizzes/start.html', {'quiz': quiz})
 
 class TakeQuizView(TemplateView):
     template_name = 'quizzes/take_quiz.html'
@@ -204,6 +245,33 @@ class TakeQuizView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['quiz_id'] = self.kwargs['quiz_id']
         return context
+
+    def get(self, request, *args, **kwargs):
+        quiz_id = self.kwargs['quiz_id']
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+
+        if not request.user.is_authenticated:
+            if not request.session.session_key:
+                request.session.create()
+            user, created = User.objects.get_or_create(
+                email=f'{request.session.session_key}@anonymous.local',
+            )
+        else:
+            user = request.user
+
+        quiz_session_service = QuizSessionService()
+        quiz_session = quiz_session_service.get_by_user_and_quiz(
+            user=user,
+            quiz=quiz
+        )
+
+        if not quiz_session:
+            return render(request, 'quizzes/start.html', {'quiz': quiz})
+
+        return render(request, 'quizzes/take_quiz.html', {
+            'quiz': quiz,
+            'quiz_id': quiz_id
+        })
 
 
 class QuizResultView(TemplateView):

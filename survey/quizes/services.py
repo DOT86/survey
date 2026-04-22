@@ -16,8 +16,8 @@ class QuestionAnswerService:
     def __init__(self):
         self.model = QuestionAnswer
 
-    def get_by_question_id_and_session(self, question_id: int, session: QuizSession) -> Optional[QuestionAnswer]:
-        return self.model.objects.filter(question_id=question_id, session=session).first()
+    def get_by_question_id(self, question_id: int) -> Optional[QuestionAnswer]:
+        return self.model.objects.filter(question_id=question_id).first()
 
 
 class QuizSessionService:
@@ -46,12 +46,10 @@ class QuizSessionService:
         question_ids = self.quiz_question_service.get_ids_by_quiz(quiz_session.quiz)
         if not question_ids:
             return None
-
         # Ищем первый вопрос без ответа
         for question_id in question_ids:
-            question_answer = self.question_answer_service.get_by_question_id_and_session(
+            question_answer = self.question_answer_service.get_by_question_id(
                 question_id=question_id,
-                session=quiz_session
             )
             if not question_answer:  # Если ответа нет
                 return question_id

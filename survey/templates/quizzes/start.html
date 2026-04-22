@@ -1,17 +1,14 @@
-<!-- templates/quizzes/start.html -->
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Начать опрос{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <!-- Заголовок -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
             <h1 class="text-2xl font-bold text-white">Начать опрос</h1>
         </div>
 
-        <!-- Тело -->
         <div class="p-6">
             <div class="mb-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ quiz.name }}</h2>
@@ -20,7 +17,6 @@
                 {% endif %}
             </div>
 
-            <!-- Информация об опросе -->
             <div class="bg-gray-50 rounded-lg p-4 mb-6">
                 <div class="space-y-2">
                     <p class="text-gray-700">
@@ -36,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- Предупреждение -->
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
                 <p class="text-sm text-yellow-700">
                     <strong>Внимание!</strong> После начала опроса вы не сможете прерваться.
@@ -44,12 +39,10 @@
                 </p>
             </div>
 
-            <!-- Кнопки -->
             <div class="flex justify-between items-center">
                 <a href="/quiz/" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition">
                     ← Назад
                 </a>
-
                 <button onclick="startQuiz()"
                         id="start-btn"
                         class="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700 transition">
@@ -60,6 +53,17 @@
     </div>
 </div>
 
+<!-- Индикаторы загрузки -->
+<div id="overlay" class="overlay"></div>
+<div id="loading" class="loading">
+    <div class="bg-white rounded-lg p-4 shadow-xl">
+        <div class="flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span>Загрузка...</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/start-quiz.js' %}"></script>

@@ -136,6 +136,11 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+CSRF_COOKIE_HTTPONLY = False  # Чтобы JS мог читать cookie
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
